@@ -1,0 +1,140 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Runtime.Remoting.Activation;
+
+namespace База_данных_пользователя
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            const int ComandExit = 1;
+            const int ComandList = 2;
+            const int ComandAdd = 3;
+            const int ComandStatus = 4;
+            const int ComandUpdate = 5;
+            string comand;
+            bool isOpen = true;
+
+            while (isOpen)
+            {
+                Console.WriteLine("Добро пожаловать в базу");
+                Console.WriteLine($"для выхода из базы нажмите {ComandExit}");
+                Console.WriteLine($"для вывода из всех данных нажмите {ComandList}");
+                Console.WriteLine($"для добавления в базу нажмите {ComandAdd}");
+                Console.WriteLine($"для редакции статуса введите {ComandStatus}");
+                Console.WriteLine($"для повышения уровня нажмите {ComandUpdate}");
+                comand = Console.ReadLine();
+            }
+            UserDatabase userDatabase = new UserDatabase();
+        }
+    }
+    class UserDatabase
+    {
+        private User[] _database = new User[0];
+
+        public void ShowInfo()
+        {
+            for(int i = 0; i < _database.Length; i++)
+            {
+                Console.WriteLine(_database[i].Info());
+            }
+        }
+
+        public void AddUser()
+        {
+            Console.WriteLine($"Введите ник пользователя: ");
+            string nickName = Console.ReadLine();
+
+            Console.WriteLine("Введите уровень пользователя: ");
+            int level = Convert.ToInt32(Console.ReadLine());
+
+            Changedatabase(_database.Length + 1);
+            _database[_database.Length - 1] = new User(_database.Length, nickName);
+        }
+
+        public void DeleteUser()
+        {
+            Console.Write("Введите номер удаляемого пользователя: ");
+            int number = Convert.ToInt32(Console.ReadLine());
+
+            Changedatabase(_database.Length - 1, number);
+            for(int i = 0; i < _database.Length; i++)
+            {
+                _database[i].ChangeNumer(i + 1);
+            }
+        }
+
+        public void Changedatabase(int newSize, int deleteNumber = 0)
+        {
+            int j = 0;
+            User[] tempArray = new User[newSize];
+            for (int i = 0; i < _database.Length; i++)
+            {
+                if (i != deleteNumber - 1)
+                {
+                    tempArray[j] = _database[i];
+                    j++;
+                }
+            }
+            _database = tempArray;
+        }
+
+        public void status(string actionstatus)
+        {
+            Console.Write($"Введите номер пользователя, которому необходимо{actionstatus}изменить статус: ");
+            int numberstatus = Convert.ToInt32(Console.ReadLine());
+
+            if (actionstatus == "активирован") _database[numberstatus - 1].Status();
+            else if (actionstatus == "не активирован") _database[numberstatus - 1].UnStatus();
+
+            Console.WriteLine($"Пользователь изменен {numberstatus}статус");
+        }
+    }
+
+    class User
+    {
+        private int _number;
+        private string _nickName;
+        private int _level;
+        private bool _status = false;
+        private string _statusInfo = "Неактивен";
+
+        public User(int numder, string nickName, int id, string name)
+        {
+            _number = numder;
+            _nickName = nickName;
+            _level = id;
+            _status = false;
+
+            if (_status) _statusInfo = "нет";
+            else _statusInfo = "да";
+        }
+
+        public void Status()
+        {
+            _status = true;
+            _statusInfo = "нет";
+        }
+
+        public void UnStatus()
+        {
+            _status = false;
+            _statusInfo = "да";
+        }
+
+        public void ChangeNumer(int newNumber)
+        {
+            _number = newNumber;
+        }
+
+        public string Info()
+        {
+            string info = $"Пользователь{_number} -Ник: {_nickName}, Уровень: {_level}, статус: {_statusInfo}";
+            return info;
+        }
+    }
+}
